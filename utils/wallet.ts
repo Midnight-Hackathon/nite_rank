@@ -131,7 +131,10 @@ export function saveWalletSeedToEnv(seed: string) {
     envContent = envContent.replace(/WALLET_SEED=.*/g, `WALLET_SEED=${seed}`);
   } else {
     // Add new WALLET_SEED
-    envContent += `${envContent.length > 0 && !envContent.endsWith("\n") ? "\n" : ""}WALLET_SEED=${seed}\n`;
+    if (envContent.length > 0 && !envContent.endsWith("\n")) {
+      envContent += "\n";
+    }
+    envContent += `WALLET_SEED=${seed}\n`;
   }
 
   fs.writeFileSync(envPath, envContent);

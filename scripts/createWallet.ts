@@ -1,6 +1,5 @@
 import { buildAndSyncWallet, isValidSeed, waitForFunds, saveWalletSeedToEnv } from "../utils/wallet.js";
 import { nativeToken } from "@midnight-ntwrk/ledger";
-import "../utils/config.js";  // Initialize Midnight config (WebSocket, NetworkId)
 import * as readline from "readline/promises";
 import * as Rx from "rxjs";
 import * as dotenv from "dotenv";

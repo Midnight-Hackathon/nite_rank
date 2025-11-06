@@ -4,6 +4,10 @@ import { WebSocket } from "ws";
 /**
  * Initializes the Midnight environment configuration
  * Sets up WebSocket for Node.js and configures network ID
+ * 
+ * Note: This function is automatically called when this module is imported.
+ * This ensures that the global WebSocket and NetworkId are properly configured
+ * before any Midnight SDK operations are performed.
  */
 export function initializeMidnightConfig() {
   // Fix WebSocket for Node.js
@@ -14,7 +18,9 @@ export function initializeMidnightConfig() {
   setNetworkId(NetworkId.TestNet);
 }
 
-// Initialize by default when module is imported
+// Auto-initialize when module is imported to ensure proper SDK setup
+// This is necessary because the Midnight SDK requires WebSocket and NetworkId
+// to be configured globally before any wallet or contract operations
 initializeMidnightConfig();
 
 export const TESTNET_CONFIG = {

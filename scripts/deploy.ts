@@ -1,6 +1,5 @@
 import { buildAndSyncWallet, createWalletProvider } from "../utils/wallet.js";
 import { TESTNET_CONFIG } from "../utils/config.js";
-import "../utils/config.js";  // Initialize Midnight config (WebSocket, NetworkId)
 import { deployContract } from "@midnight-ntwrk/midnight-js-contracts";
 import { httpClientProofProvider } from "@midnight-ntwrk/midnight-js-http-client-proof-provider";
 import { indexerPublicDataProvider } from "@midnight-ntwrk/midnight-js-indexer-public-data-provider";
