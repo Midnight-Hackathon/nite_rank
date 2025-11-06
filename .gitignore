@@ -1,0 +1,30 @@
+# Environment variables
+.env
+.env.local
+
+# Wallet sync data
+midnight-level-db/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Compiled contracts
+contracts/managed/
+deployment.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
