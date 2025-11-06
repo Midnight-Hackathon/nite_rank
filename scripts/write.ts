@@ -1,6 +1,7 @@
 import * as readline from "readline/promises";
 import { buildAndSyncWallet, isValidSeed } from "../utils/wallet.js";
 import { loadDeploymentInfo, loadContractModule, initializeProviders, connectToContract} from "../utils/contract.js";
+import "../utils/config.js";  // Initialize Midnight config (WebSocket, NetworkId)
 import * as dotenv from "dotenv";
 dotenv.config();
 /**

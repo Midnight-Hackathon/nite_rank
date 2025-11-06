@@ -6,6 +6,7 @@ import {
   initializeProviders,
   readCurrentMessage
 } from "../utils/contract.js";
+import "../utils/config.js";  // Initialize Midnight config (WebSocket, NetworkId)
 
 import * as dotenv from "dotenv";
 dotenv.config();

@@ -1,33 +1,17 @@
 import { buildAndSyncWallet, createWalletProvider } from "../utils/wallet.js";
+import { TESTNET_CONFIG } from "../utils/config.js";
+import "../utils/config.js";  // Initialize Midnight config (WebSocket, NetworkId)
 import { deployContract } from "@midnight-ntwrk/midnight-js-contracts";
 import { httpClientProofProvider } from "@midnight-ntwrk/midnight-js-http-client-proof-provider";
 import { indexerPublicDataProvider } from "@midnight-ntwrk/midnight-js-indexer-public-data-provider";
 import { NodeZkConfigProvider } from "@midnight-ntwrk/midnight-js-node-zk-config-provider";
 import { levelPrivateStateProvider } from "@midnight-ntwrk/midnight-js-level-private-state-provider";
-import { NetworkId, setNetworkId } from "@midnight-ntwrk/midnight-js-network-id";
 import { nativeToken } from "@midnight-ntwrk/ledger";
-import { WebSocket } from "ws";
 import * as fs from "fs";
 import * as path from "path";
 import * as Rx from "rxjs";
 import * as dotenv from "dotenv";
 dotenv.config();
-
-// Fix WebSocket for Node.js environment
-// deno-lint-ignore ban-ts-comment
-// @ts-ignore
-globalThis.WebSocket = WebSocket;
-
-// Configure for Midnight Testnet
-setNetworkId(NetworkId.TestNet);
-
-// Testnet connection endpoints
-const TESTNET_CONFIG = {
-  indexer: "https://indexer.testnet-02.midnight.network/api/v1/graphql",
-  indexerWS: "wss://indexer.testnet-02.midnight.network/api/v1/graphql/ws",
-  node: "https://rpc.testnet-02.midnight.network",
-  proofServer: "http://127.0.0.1:6300"
-};
 
 async function main() {
   console.log("=".repeat(60));

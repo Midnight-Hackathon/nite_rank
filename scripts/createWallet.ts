@@ -1,64 +1,9 @@
-import { buildAndSyncWallet, isValidSeed } from "../utils/wallet.js";
+import { buildAndSyncWallet, isValidSeed, waitForFunds, saveWalletSeedToEnv } from "../utils/wallet.js";
 import { nativeToken } from "@midnight-ntwrk/ledger";
-import { WebSocket } from "ws";
-import * as fs from "fs";
-import * as path from "path";
+import "../utils/config.js";  // Initialize Midnight config (WebSocket, NetworkId)
 import * as readline from "readline/promises";
 import * as Rx from "rxjs";
 import * as dotenv from "dotenv";
-import { NetworkId, setNetworkId } from "@midnight-ntwrk/midnight-js-network-id";
-import { type Wallet } from "@midnight-ntwrk/wallet-api";
-
-// Fix WebSocket for Node.js environment
-// @ts-ignore
-globalThis.WebSocket = WebSocket;
-
-// Configure for Midnight Testnet
-setNetworkId(NetworkId.TestNet);
-
-const waitForFunds = (wallet: Wallet) =>
-  Rx.firstValueFrom(
-    wallet.state().pipe(
-      Rx.tap((state) => {
-        const balance = state.balances[nativeToken()] ?? 0n;
-        if (state.syncProgress) {
-          console.log(
-            `Sync progress: synced=${state.syncProgress.synced}, balance=${balance} tDUST`
-          );
-        }
-      }),
-      Rx.filter((state) => state.syncProgress?.synced === true),
-      Rx.map((s) => s.balances[nativeToken()] ?? 0n),
-      Rx.filter((balance) => balance > 0n),
-      Rx.tap((balance) => console.log(`\n✓ Wallet funded with balance: ${balance} tDUST`)),
-      Rx.take(1)
-    )
-  );
-
-/**
- * Saves wallet seed to .env file
- */
-function saveWalletSeedToEnv(seed: string) {
-  const envPath = path.join(process.cwd(), ".env");
-  let envContent = "";
-
-  // Read existing .env if it exists
-  if (fs.existsSync(envPath)) {
-    envContent = fs.readFileSync(envPath, "utf8");
-  }
-
-  // Check if WALLET_SEED already exists
-  if (envContent.includes("WALLET_SEED=")) {
-    // Replace existing WALLET_SEED
-    envContent = envContent.replace(/WALLET_SEED=.*/g, `WALLET_SEED=${seed}`);
-  } else {
-    // Add new WALLET_SEED
-    envContent += `${envContent.length > 0 && !envContent.endsWith("\n") ? "\n" : ""}WALLET_SEED=${seed}\n`;
-  }
-
-  fs.writeFileSync(envPath, envContent);
-  console.log("\n✓ Wallet seed saved to .env file");
-}
 
 async function main() {
   console.log("=".repeat(60));
