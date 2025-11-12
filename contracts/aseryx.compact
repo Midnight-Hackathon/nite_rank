@@ -2,46 +2,42 @@ pragma language_version >= 0.16 && <= 0.18;
 
 import CompactStandardLibrary;
 
-// Basic ledger state for shielded data vault
-export ledger total_entries: Uint<64>;
-export ledger data_entries: Map<Uint<32>, Bytes<32>>; // entry_id -> encrypted_data
-export ledger data_owners: Map<Uint<32>, Uint<32>>; // entry_id -> owner_id
-export ledger nonce: Counter;
+export ledger registeredUsers: Map<Bytes<32>, Boolean>;  // User pubkey -> registered status
+export ledger userProofs: Map<Bytes<32>, Counter>;  // User pubkey -> number of valid proofs submitted
+export ledger totalVerified: Counter;  // Global tally (public for transparency)
 
-// Constructor to initialize the contract
-constructor() {
-    total_entries = 0;
+// Witnesses fetch PRIVATE data from the user's local state
+witness runDistance(): Uint<32>;  // User's private distance
+witness runDuration(): Uint<32>;  // User's private duration
+
+// Main circuit: User submits proof of run distance and duration
+export circuit registerUser(userPk: Bytes<32>): [] {
+  registeredUsers.insert(disclose(userPk), true);
+  userProofs.insert(disclose(userPk), default<Counter>);
 }
 
-export circuit create_entry(
-    entry_id: Uint<32>,
-    encrypted_data: Bytes<32>,
-    caller_id: Uint<32>
-): [] {
-    // Prevent duplicate entry IDs
-    assert(!data_entries.member(disclose(entry_id)), "Entry ID already exists");
-    
-    // Store encrypted data and owner
-    data_entries.insert(disclose(entry_id), disclose(encrypted_data));
-    data_owners.insert(disclose(entry_id), disclose(caller_id));
-    
-    // Update total entries count
-    total_entries = (total_entries + 1) as Uint<64>;
-    
-    // Increment nonce
-    nonce.increment(1);
+// Helper: Prove distance meets threshold
+export circuit proveRunDistance(distance: Uint<32>, duration: Uint<32>): Boolean {
+  const DistanceThreshold = 5000 as Uint<32>;  // 5km in meters
+  const DurationThreshold = 1200 as Uint<32>;  // 20 minutes in seconds
+  return distance >= DistanceThreshold && duration <= DurationThreshold;
 }
 
-export circuit get_entry(
-    entry_id: Uint<32>,
-    caller_id: Uint<32>
-): [Bytes<32>] {
-    // Verify entry exists
-    assert(data_entries.member(disclose(entry_id)), "Entry does not exist");
-    
-    // Verify ownership
-    assert(disclose(caller_id) == data_owners.lookup(disclose(entry_id)), "Not the owner of this entry");
-    
-    // Return encrypted data
-    return [data_entries.lookup(disclose(entry_id))];
+// NEW: Circuit that CALLS the witnesses to get private data
+export circuit submitRunProof(userPk: Bytes<32>): [] {
+  // Fetch private values from witnesses (not disclosed on-chain!)
+  const distance = runDistance();
+  const duration = runDuration();
+
+  const isRegistered = registeredUsers.lookup(disclose(userPk));
+  assert(isRegistered, "User not registered");
+  assert(proveRunDistance(distance, duration), "Run distance below 5km threshold");
+
+  userProofs.lookup(disclose(userPk)).increment(1);
+  totalVerified.increment(1);
+}
+
+// View function to get the number of proofs submitted by a user
+export circuit getUserProofCount(userPk: Bytes<32>): Uint<64> {
+  return userProofs.lookup(disclose(userPk)).read();
 }
