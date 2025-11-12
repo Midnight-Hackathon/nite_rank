@@ -26,7 +26,7 @@ async function main() {
     if (!walletSeed) {
       console.error("✗ No wallet found!\n");
       console.log("Please set up your wallet first by running:");
-      console.log("  npm run create-wallet\n");
+      console.log("  npm run create:wallet\n");
       console.log("Then try deploying again.");
       console.log("=".repeat(60));
       process.exit(1);

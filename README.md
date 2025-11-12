@@ -1,5 +1,8 @@
 # Aseryx - Zero-Knowledge Fitness Tracking on Midnight Network
 
+**Repository:** faulknerpearce/midnight  
+**Application:** Aseryx
+
 A privacy-preserving fitness tracking application built on the Midnight Network using zero-knowledge proofs. Users can prove they completed runs meeting specific criteria (distance ≥ 5km, duration ≤ 20 minutes) without revealing their actual distance or duration values.
 
 ## What is Aseryx?
@@ -377,7 +380,7 @@ const contractInstance = new AseryxModule.Contract(
 
 ## Configuration
 
-The wallet configuration is stored in `.env` file (automatically created by `npm run create-wallet`):
+The wallet configuration is stored in `.env` file (automatically created by `npm run create:wallet`):
 ```
 WALLET_SEED=your_64_character_hex_seed_here
 ```

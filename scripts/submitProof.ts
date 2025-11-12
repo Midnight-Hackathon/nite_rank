@@ -1,4 +1,3 @@
-import * as readline from "readline/promises";
 import { buildAndSyncWallet, isValidSeed } from "../utils/wallet.js";
 import { loadDeploymentInfo, loadContractModule, initializeProviders, connectToContract } from "../utils/contract.js";
 import { saveTransactionProof } from "../utils/proofCapture.js";
@@ -12,11 +11,6 @@ dotenv.config();
  * Submit Proof interaction script - submits a run proof to the Aseryx contract
  */
 async function main() {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
   console.log("Aseryx Contract - Submit Run Proof\n");
 
   try {
@@ -107,8 +101,6 @@ async function main() {
   } catch (error: any) {
     console.error("\nUnexpected error:", error.message || error);
     process.exit(1);
-  } finally {
-    rl.close();
   }
 }
 

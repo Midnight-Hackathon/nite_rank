@@ -12,8 +12,6 @@
     "create:wallet": "node --disable-warning=ExperimentalWarning --disable-warning=DEP0040 dist/scripts/createWallet.js",
     "register": "node --disable-warning=ExperimentalWarning --disable-warning=DEP0040 dist/scripts/register.js",
     "submit:proof": "node --disable-warning=ExperimentalWarning --disable-warning=DEP0040 dist/scripts/submitProof.js",
-    "viewProofs": "node --disable-warning=ExperimentalWarning --disable-warning=DEP0040 dist/scripts/viewProofs.js",
-    "verifyProof": "node --disable-warning=ExperimentalWarning --disable-warning=DEP0040 dist/scripts/verifyProof.js",
     "verifyProof:onchain": "node --disable-warning=ExperimentalWarning --disable-warning=DEP0040 dist/zk/verifyProofOnChain.js",
     "verifyProof:offchain": "node --disable-warning=ExperimentalWarning --disable-warning=DEP0040 dist/zk/verifyProofOffChain.js",
     "fetch:tx": "node --disable-warning=ExperimentalWarning --disable-warning=DEP0040 dist/utils/fetchTransaction.js"
