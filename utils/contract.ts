@@ -5,7 +5,6 @@ import { NodeZkConfigProvider } from "@midnight-ntwrk/midnight-js-node-zk-config
 import { levelPrivateStateProvider } from "@midnight-ntwrk/midnight-js-level-private-state-provider";
 import * as path from "path";
 import * as fs from "fs";
-import { Buffer } from "node:buffer";
 import { TESTNET_CONFIG } from "./config.js";
 import { createWalletProvider } from "./wallet.js";
 
@@ -34,7 +33,7 @@ export async function loadContractModule() {
   const contractModulePath = path.join(
     contractPath,
     "managed",
-    "hello-world",
+    "aseryx",
     "contract",
     "index.cjs"
   );
@@ -43,8 +42,8 @@ export async function loadContractModule() {
     throw new Error("Contract not compiled! Run: npm run compile");
   }
 
-  const HelloWorldModule = await import(contractModulePath);
-  return { HelloWorldModule, contractPath };
+  const AseryxModule = await import(contractModulePath);
+  return { AseryxModule, contractPath };
 }
 
 /**
@@ -55,11 +54,11 @@ export async function loadContractModule() {
  */
 export async function initializeProviders(contractPath: string, wallet: any) {
   const walletProvider = await createWalletProvider(wallet);
-  const zkConfigPath = path.join(contractPath, "managed", "hello-world");
+  const zkConfigPath = path.join(contractPath, "managed", "aseryx");
 
   return {
     privateStateProvider: levelPrivateStateProvider({
-      privateStateStoreName: "hello-world-state"
+      privateStateStoreName: "aseryx-state"
     }),
     publicDataProvider: indexerPublicDataProvider(
       TESTNET_CONFIG.indexer,
@@ -87,31 +86,59 @@ export async function connectToContract(
   return await findDeployedContract(providers, {
     contractAddress,
     contract: contractInstance,
-    privateStateId: "helloWorldState",
+    privateStateId: "aseryxState",
     initialPrivateState: {}
   });
 }
 
 /**
- * Reads the current message from the contract
+ * Reads entry data from the contract ledger state
  * @param providers - Initialized providers
  * @param contractAddress - Address of the deployed contract
- * @param HelloWorldModule - The contract module
- * @returns The current message or null
+ * @param AseryxModule - The contract module
+ * @param entryId - The entry ID to look up
+ * @returns The encrypted data for the entry or null
  */
-export async function readCurrentMessage(
+export async function getEntryData(
   providers: any,
   contractAddress: string,
-  HelloWorldModule: any
-): Promise<string | null> {
+  AseryxModule: any,
+  entryId: number
+): Promise<Uint8Array | null> {
   const state = await providers.publicDataProvider.queryContractState(
     contractAddress
   );
   
   if (state && state.data) {
-    const ledger = HelloWorldModule.ledger(state.data);
-    return Buffer.from(ledger.message).toString("utf8");
+    const ledger = AseryxModule.ledger(state.data);
+    if (ledger.data_entries.member(BigInt(entryId))) {
+      return ledger.data_entries.lookup(BigInt(entryId));
+    }
   }
   
   return null;
+}
+
+/**
+ * Gets the total number of entries in the contract
+ * @param providers - Initialized providers
+ * @param contractAddress - Address of the deployed contract
+ * @param AseryxModule - The contract module
+ * @returns The total number of entries
+ */
+export async function getTotalEntries(
+  providers: any,
+  contractAddress: string,
+  AseryxModule: any
+): Promise<bigint> {
+  const state = await providers.publicDataProvider.queryContractState(
+    contractAddress
+  );
+  
+  if (state && state.data) {
+    const ledger = AseryxModule.ledger(state.data);
+    return ledger.total_entries;
+  }
+  
+  return 0n;
 }

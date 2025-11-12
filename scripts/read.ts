@@ -4,14 +4,14 @@ import {
   loadDeploymentInfo,
   loadContractModule,
   initializeProviders,
-  readCurrentMessage
+  connectToContract
 } from "../utils/contract.js";
 
 import * as dotenv from "dotenv";
 dotenv.config();
 
 /**
- * Read interaction script - reads the current message from the Hello World contract
+ * Read interaction script - retrieves an entry from the Aseryx contract
  */
 async function main() {
   const rl = readline.createInterface({
@@ -19,7 +19,7 @@ async function main() {
     output: process.stdout
   });
 
-  console.log("Hello World Contract - Read Message\n");
+  console.log("Aseryx Contract - Get Entry\n");
 
   try {
     // Check deployment.json
@@ -44,26 +44,63 @@ async function main() {
     const wallet = await buildAndSyncWallet(walletSeed);
 
     // Load compiled contract
-    const { HelloWorldModule, contractPath } = await loadContractModule();
+    const { AseryxModule, contractPath } = await loadContractModule();
+    const contractInstance = new AseryxModule.Contract({});
 
     // Configure providers
     const providers = await initializeProviders(contractPath, wallet);
 
+    // Connect to deployed contract
+    const deployed: any = await connectToContract(
+      providers,
+      deployment.contractAddress,
+      contractInstance
+    );
+
     console.log("Connected to contract!\n");
-    console.log("Querying current message...\n");
+
+    // Get entry details
+    const entryIdStr = await rl.question("Enter entry ID to retrieve: ");
+    const entryId = parseInt(entryIdStr, 10);
+    
+    if (isNaN(entryId) || entryId < 0) {
+      console.error("Invalid entry ID. Must be a non-negative number.");
+      process.exit(1);
+    }
+
+    const callerIdStr = await rl.question("Enter your caller ID: ");
+    const callerId = parseInt(callerIdStr, 10);
+    
+    if (isNaN(callerId) || callerId < 0) {
+      console.error("Invalid caller ID. Must be a non-negative number.");
+      process.exit(1);
+    }
+
+    console.log("\nRetrieving entry...\n");
 
     try {
-      const currentMessage = await readCurrentMessage(
-        providers,
-        deployment.contractAddress,
-        HelloWorldModule
+      // Call as transaction since it has assertions
+      const tx = await deployed.callTx.get_entry(
+        BigInt(entryId),
+        BigInt(callerId)
       );
-
-      if (currentMessage) {
-        console.log(`Current message: "${currentMessage}"\n`);
-      } else {
-        console.log("No message stored yet.\n");
+      
+      // Access the return value from the transaction
+      const encryptedData = tx.returns?.[0];
+      
+      if (!encryptedData) {
+        console.error("No data returned from transaction");
+        process.exit(1);
       }
+      
+      const decoder = new TextDecoder();
+      const dataString = decoder.decode(encryptedData).replace(/\0+$/, '');
+      
+      console.log("Success!");
+      console.log(`Entry ID: ${entryId}`);
+      console.log(`Data: ${dataString}`);
+      console.log(`Tx ID: ${tx.public.txId}`);
+      console.log(`Block: ${tx.public.blockHeight}\n`);
     } catch (err: any) {
       console.error("Failed to read message:");
       console.error(err.message || err);

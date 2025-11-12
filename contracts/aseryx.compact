@@ -1,0 +1,47 @@
+pragma language_version >= 0.16 && <= 0.18;
+
+import CompactStandardLibrary;
+
+// Basic ledger state for shielded data vault
+export ledger total_entries: Uint<64>;
+export ledger data_entries: Map<Uint<32>, Bytes<32>>; // entry_id -> encrypted_data
+export ledger data_owners: Map<Uint<32>, Uint<32>>; // entry_id -> owner_id
+export ledger nonce: Counter;
+
+// Constructor to initialize the contract
+constructor() {
+    total_entries = 0;
+}
+
+export circuit create_entry(
+    entry_id: Uint<32>,
+    encrypted_data: Bytes<32>,
+    caller_id: Uint<32>
+): [] {
+    // Prevent duplicate entry IDs
+    assert(!data_entries.member(disclose(entry_id)), "Entry ID already exists");
+    
+    // Store encrypted data and owner
+    data_entries.insert(disclose(entry_id), disclose(encrypted_data));
+    data_owners.insert(disclose(entry_id), disclose(caller_id));
+    
+    // Update total entries count
+    total_entries = (total_entries + 1) as Uint<64>;
+    
+    // Increment nonce
+    nonce.increment(1);
+}
+
+export circuit get_entry(
+    entry_id: Uint<32>,
+    caller_id: Uint<32>
+): [Bytes<32>] {
+    // Verify entry exists
+    assert(data_entries.member(disclose(entry_id)), "Entry does not exist");
+    
+    // Verify ownership
+    assert(disclose(caller_id) == data_owners.lookup(disclose(entry_id)), "Not the owner of this entry");
+    
+    // Return encrypted data
+    return [data_entries.lookup(disclose(entry_id))];
+}

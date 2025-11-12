@@ -1,4 +1,4 @@
-# Midnight Hello World Contract
+# Midnight Aseryx Contract
 
 A modular setup for interacting with Midnight smart contracts, organized similarly to Hardhat projects.
 
@@ -7,13 +7,12 @@ A modular setup for interacting with Midnight smart contracts, organized similar
 ```
 midnight/
 ├── contracts/              # Smart contracts
-│   ├── hello-world.compact
+│   ├── aseryx.compact
 │   └── managed/            # Compiled contract artifacts
-│       └── hello-world/
+│       └── aseryx/
 ├── scripts/                # Interaction scripts
 │   ├── createWallet.ts     # Wallet creation & import
 │   ├── deploy.ts           # Contract deployment
-│   ├── cli.ts              # Interactive CLI (read & write)
 │   ├── read.ts             # Read-only interactions
 │   ├── write.ts            # Write interactions
 ├── utils/                  # Utility modules
@@ -158,16 +157,54 @@ npm run deploy
 
 ### Interact with Contract
 
+The Aseryx contract provides a shielded data vault where you can store and retrieve encrypted data entries.
+
 ```bash
-# Interactive CLI - menu for read/write operations
-npm run cli
-
-# Read current message directly
-npm run read
-
-# Write new message directly
+# Create a new entry
 npm run write
+
+# Retrieve an entry
+npm run read
 ```
+
+#### Creating an Entry (`npm run write`)
+
+The script will prompt you for:
+- **Entry ID**: A unique number to identify your entry (e.g., 1, 2, 3...)
+- **Data**: The data you want to store (max 32 bytes, will be encrypted)
+- **Caller ID**: Your unique identifier (must match when retrieving)
+
+Example:
+```
+Enter entry ID (number): 1
+Enter data to encrypt (max 32 bytes): Hello Midnight!
+Enter your caller ID (number): 12345
+
+Submitting transaction... (this may take 20–60 seconds)
+
+Success!
+Entry created with ID: 1
+```
+
+#### Retrieving an Entry (`npm run read`)
+
+The script will prompt you for:
+- **Entry ID**: The ID of the entry you want to retrieve
+- **Caller ID**: Must match the caller ID used when creating the entry
+
+Example:
+```
+Enter entry ID to retrieve: 1
+Enter your caller ID: 12345
+
+Retrieving entry...
+
+Success!
+Entry ID: 1
+Data: Hello Midnight!
+```
+
+**Note**: You can only retrieve entries you own (matching caller ID).
 
 ## Utility Modules
 
@@ -184,10 +221,52 @@ The project uses modular utilities that can be imported into any script:
 
 ### `utils/contract.ts`
 - `loadDeploymentInfo()` - Load deployment.json
-- `loadContractModule()` - Load compiled contract
+- `loadContractModule()` - Load compiled Aseryx contract
 - `initializeProviders()` - Setup all providers
 - `connectToContract()` - Connect to deployed contract
-- `readCurrentMessage()` - Query contract state
+- `getEntryData()` - Query entry data from contract state
+- `getTotalEntries()` - Get total number of entries
+
+## Contract Overview
+
+The Aseryx contract (`contracts/aseryx.compact`) provides a shielded data vault with the following features:
+
+### Ledger State
+- `total_entries`: Counter for total entries created
+- `data_entries`: Map of entry ID to encrypted data (32 bytes)
+- `data_owners`: Map of entry ID to owner/caller ID
+- `nonce`: Transaction nonce counter
+
+### Circuits (Functions)
+
+#### `create_entry`
+Creates a new encrypted data entry in the vault.
+
+**Parameters:**
+- `entry_id` (Uint<32>): Unique identifier for the entry
+- `encrypted_data` (Bytes<32>): The encrypted data to store
+- `caller_id` (Uint<32>): The owner/caller identifier
+
+**Returns:** None (updates ledger state)
+
+**Behavior:**
+- Ensures entry ID doesn't already exist
+- Stores encrypted data and associates it with the caller ID
+- Increments total entries counter
+
+#### `get_entry`
+Retrieves an encrypted data entry from the vault.
+
+**Parameters:**
+- `entry_id` (Uint<32>): The entry ID to retrieve
+- `caller_id` (Uint<32>): Must match the owner's caller ID
+
+**Returns:** `[Bytes<32>]` - The encrypted data
+
+**Behavior:**
+- Verifies entry exists
+- Verifies caller owns the entry
+- Returns the encrypted data
 
 ## Creating Custom Interactions
 
@@ -195,21 +274,38 @@ Use the utilities to build custom scripts:
 
 ```typescript
 import { buildAndSyncWallet } from "../utils/wallet.js";
-import { loadDeploymentInfo, loadContractModule, initializeProviders } from "../utils/contract.js";
+import { loadDeploymentInfo, loadContractModule, initializeProviders, connectToContract } from "../utils/contract.js";
 
 async function myCustomScript() {
   const deployment = loadDeploymentInfo();
   const wallet = await buildAndSyncWallet(walletSeed);
-  const { HelloWorldModule, contractPath } = await loadContractModule();
+  const { AseryxModule, contractPath } = await loadContractModule();
+  const contractInstance = new AseryxModule.Contract({});
   const providers = await initializeProviders(contractPath, wallet);
   
-  // Your custom logic here
+  const deployed = await connectToContract(
+    providers,
+    deployment.contractAddress,
+    contractInstance
+  );
+  
+  // Create an entry
+  const tx = await deployed.callTx.create_entry(
+    BigInt(1),                          // entry_id
+    new Uint8Array(32),                 // encrypted_data
+    BigInt(12345)                       // caller_id
+  );
+  
+  // Retrieve an entry
+  const result = await deployed.callTx.get_entry(
+    BigInt(1),                          // entry_id
+    BigInt(12345)                       // caller_id
+  );
+  const data = result.returns[0];       // Uint8Array
   
   await wallet.close();
 }
 ```
-
-See `scripts/example-custom.ts` for a complete template.
 
 ## Requirements
 

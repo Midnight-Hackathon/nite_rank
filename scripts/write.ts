@@ -4,7 +4,7 @@ import { loadDeploymentInfo, loadContractModule, initializeProviders, connectToC
 import * as dotenv from "dotenv";
 dotenv.config();
 /**
- * Write interaction script - stores a message to the Hello World contract
+ * Write interaction script - creates an entry in the Aseryx contract
  */
 async function main() {
   const rl = readline.createInterface({
@@ -12,7 +12,7 @@ async function main() {
     output: process.stdout
   });
 
-  console.log("Hello World Contract - Write Message\n");
+  console.log("Aseryx Contract - Create Entry\n");
 
   try {
     // Check deployment.json
@@ -37,8 +37,8 @@ async function main() {
     const wallet = await buildAndSyncWallet(walletSeed);
 
     // Load compiled contract
-    const { HelloWorldModule, contractPath } = await loadContractModule();
-    const contractInstance = new HelloWorldModule.Contract({});
+    const { AseryxModule, contractPath } = await loadContractModule();
+    const contractInstance = new AseryxModule.Contract({});
 
     // Configure providers
     const providers = await initializeProviders(contractPath, wallet);
@@ -52,19 +52,45 @@ async function main() {
 
     console.log("Connected to contract!\n");
 
-    // Get message to store
-    const message = await rl.question("Enter your message: ");
-    if (!message.trim()) {
-      console.error("Message cannot be empty.");
+    // Get entry details
+    const entryIdStr = await rl.question("Enter entry ID (number): ");
+    const entryId = parseInt(entryIdStr, 10);
+    
+    if (isNaN(entryId) || entryId < 0) {
+      console.error("Invalid entry ID. Must be a non-negative number.");
+      process.exit(1);
+    }
+
+    const dataInput = await rl.question("Enter data to encrypt (max 32 bytes): ");
+    if (!dataInput.trim()) {
+      console.error("Data cannot be empty.");
+      process.exit(1);
+    }
+
+    // Convert string to Uint8Array and pad to 32 bytes
+    const encoder = new TextEncoder();
+    const dataBytes = encoder.encode(dataInput);
+    const encryptedData = new Uint8Array(32);
+    encryptedData.set(dataBytes.slice(0, 32));
+
+    const callerIdStr = await rl.question("Enter your caller ID (number): ");
+    const callerId = parseInt(callerIdStr, 10);
+    
+    if (isNaN(callerId) || callerId < 0) {
+      console.error("Invalid caller ID. Must be a non-negative number.");
       process.exit(1);
     }
 
     console.log("\nSubmitting transaction... (this may take 20–60 seconds)\n");
 
     try {
-      const tx = await deployed.callTx.storeMessage(message);
+      const tx = await deployed.callTx.create_entry(
+        BigInt(entryId),
+        encryptedData,
+        BigInt(callerId)
+      );
       console.log("Success!");
-      console.log(`Message stored: "${message}"`);
+      console.log(`Entry created with ID: ${entryId}`);
       console.log(`Tx ID: ${tx.public.txId}`);
       console.log(`Block: ${tx.public.blockHeight}\n`);
     } catch (err: any) {

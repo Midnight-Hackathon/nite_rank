@@ -58,7 +58,7 @@ async function main() {
     const contractModulePath = path.join(
       contractPath,
       "managed",
-      "hello-world",
+      "aseryx",
       "contract",
       "index.cjs"
     );
@@ -68,18 +68,18 @@ async function main() {
       process.exit(1);
     }
 
-    const HelloWorldModule = await import(contractModulePath);
-    const contractInstance = new HelloWorldModule.Contract({});
+    const AseryxModule = await import(contractModulePath);
+    const contractInstance = new AseryxModule.Contract({});
 
     // Create wallet provider using utility function
     console.log("🔧 Setting up wallet provider...");
     const walletProvider = await createWalletProvider(wallet);
 
     console.log("🔧 Setting up providers...");
-    const zkConfigPath = path.join(contractPath, "managed", "hello-world");
+    const zkConfigPath = path.join(contractPath, "managed", "aseryx");
     const providers = {
       privateStateProvider: levelPrivateStateProvider({
-        privateStateStoreName: "hello-world-state"
+        privateStateStoreName: "aseryx-state"
       }),
       publicDataProvider: indexerPublicDataProvider(
         TESTNET_CONFIG.indexer,
@@ -96,7 +96,7 @@ async function main() {
 
     const deployed = await deployContract(providers, {
       contract: contractInstance,
-      privateStateId: "helloWorldState",
+      privateStateId: "aseryxState",
       initialPrivateState: {}
     });
 

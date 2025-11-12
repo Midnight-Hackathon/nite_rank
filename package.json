@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "compile": "compact compile contracts/hello-world.compact contracts/managed/hello-world",
+    "compile": "compact compile contracts/aseryx.compact contracts/managed/aseryx",
+    "clean": "rm -rf dist",
     "build": "tsc",
+    "rebuild": "npm run clean && npm run build",
     "create-wallet": "node dist/scripts/createWallet.js",
     "deploy": "node dist/scripts/deploy.js",
     "cli": "node dist/scripts/cli.js",
