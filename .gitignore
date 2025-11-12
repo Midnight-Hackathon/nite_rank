@@ -1,6 +1,7 @@
 # Environment variables
 .env
 .env.local
+proofs/
 
 # Wallet sync data
 midnight-level-db/
