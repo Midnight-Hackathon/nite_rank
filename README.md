@@ -1,311 +1,373 @@
-# Midnight Aseryx Contract
+# Aseryx - Zero-Knowledge Fitness Tracking on Midnight Network
 
-A modular setup for interacting with Midnight smart contracts, organized similarly to Hardhat projects.
+A privacy-preserving fitness tracking application built on the Midnight Network using zero-knowledge proofs. Users can prove they completed runs meeting specific criteria (distance ≥ 5km, duration ≤ 20 minutes) without revealing their actual distance or duration values.
+
+## What is Aseryx?
+
+Aseryx enables fitness enthusiasts to:
+- **Register** as verified users on the Midnight blockchain
+- **Submit zero-knowledge proofs** of completed runs that meet criteria
+- **Maintain privacy** - exact distance/duration remains hidden
+- **Build verifiable fitness history** through cryptographic proofs
+- **Share proofs** for auditing and verification purposes
+
+The system uses zero-knowledge proofs to mathematically prove that a run meets the criteria without disclosing the actual measurements, ensuring user privacy while maintaining accountability.
 
 ## Project Structure
 
 ```
 midnight/
-├── contracts/              # Smart contracts
-│   ├── aseryx.compact
-│   └── managed/            # Compiled contract artifacts
+├── contracts/
+│   ├── aseryx.compact          # Main contract with ZK circuits
+│   └── managed/                # Compiled contract artifacts (generated)
 │       └── aseryx/
-├── scripts/                # Interaction scripts
-│   ├── createWallet.ts     # Wallet creation & import
-│   ├── deploy.ts           # Contract deployment
-│   ├── read.ts             # Read-only interactions
-│   ├── write.ts            # Write interactions
-├── utils/                  # Utility modules
-│   ├── config.ts           # Network configuration
-│   ├── wallet.ts           # Wallet utilities
-│   └── contract.ts         # Contract utilities
-├── dist/                   # Compiled JavaScript (generated)
-├── deployment.json         # Deployed contract info (generated)
-└── package.json
+│           ├── compiler/       # Contract compilation info
+│           ├── contract/       # Compiled contract module
+│           ├── keys/           # Prover/verifier keys (generated)
+│           └── zkir/           # ZK circuit descriptions (generated)
+├── scripts/                    # Interactive CLI scripts
+│   ├── createWallet.ts         # Wallet setup & funding
+│   ├── deploy.ts               # Contract deployment
+│   ├── register.ts             # User registration
+│   └── submitProof.ts          # Run proof submission
+├── utils/                      # Core utilities
+│   ├── config.ts               # Network configuration
+│   ├── wallet.ts               # Wallet management
+│   ├── contract.ts             # Contract interaction
+│   ├── witnesses.ts            # ZK witness functions
+│   ├── proofCapture.ts         # Proof serialization/sharing
+│   └── fetchTransaction.ts     # Blockchain transaction fetching
+├── zk/                         # Proof verification tools
+│   ├── verifyProofOffChain.ts  # Cryptographic proof verification
+│   └── verifyProofOnChain.ts   # Blockchain transaction verification
+├── proofs/                     # Saved proof files (generated)
+├── midnight-level-db/          # Local blockchain state (generated)
+├── dist/                       # Compiled TypeScript output (generated)
+├── deployment.json             # Deployed contract info (generated)
+├── .env                        # Wallet seed storage (generated, gitignored)
+├── tsconfig.json               # TypeScript configuration
+├── package.json                # Dependencies and scripts
+└── README.md
 ```
 
-## Setup
+## Quick Start
 
-### 1. Install dependencies
+### 1. Prerequisites
+- Node.js 18+
+- Docker (for proof server)
+- Git
+
+### 2. Setup Environment
 ```bash
+# Clone and install
+git clone <repository-url>
+cd midnight
 npm install
+
+# Start proof server (in separate terminal)
+npm run docker
 ```
 
-### 2. Start the proof server (in a separate terminal)
+### 3. Create Wallet
 ```bash
-docker run -p 6300:6300 midnightnetwork/proof-server -- 'midnight-proof-server --network testnet'
+npm run create:wallet
 ```
+This will:
+- Generate or import a wallet seed
+- Save it securely to `.env`
+- Display your wallet address
+- Optionally wait for testnet funding
 
-### 3. Create or import wallet
+### 4. Fund Wallet
+Visit [Midnight Testnet Faucet](https://midnight.network/test-faucet) and send tDUST tokens to your wallet address.
 
-Run the interactive wallet setup:
+### 5. Deploy Contract
 ```bash
-npm run create-wallet
-```
-
-#### What the wallet setup does:
-
-**First Time Setup:**
-```
-============================================================
-Midnight Wallet Setup
-============================================================
-
-Do you want to:
-  1. Create a new wallet
-  2. Import an existing wallet
-
-Enter choice (1 or 2): 1
-
-🔐 Generating new wallet seed...
-
-============================================================
-⚠️  IMPORTANT: SAVE THIS SEED SECURELY!
-============================================================
-
-a1b2c3d4e5f6...your_64_character_hex_seed...
-
-This seed will be saved to your .env file, but you should
-also store it somewhere secure as a backup.
-============================================================
-
-Have you saved your seed? (y/n): y
-
-✓ Wallet seed saved to .env file
-
-📡 Connecting to Midnight Testnet...
-
-✓ Wallet address: 0x1234...abcd
-
-💰 Wallet balance: 0 tDUST
-
-============================================================
-NEXT STEPS:
-============================================================
-1. Visit the Midnight testnet faucet:
-   https://midnight.network/test-faucet
-
-2. Send test tokens to: 0x1234...abcd
-
-3. Wait for tokens to arrive (this may take a few minutes)
-============================================================
-
-Wait for funds now? (y/n): y
-
-⏳ Waiting to receive tokens...
-(The wallet will continuously check for incoming funds)
-Sync progress: synced=true, balance=1000 tDUST
-
-✓ Wallet funded with balance: 1000 tDUST
-
-============================================================
-✓ WALLET SETUP COMPLETE!
-============================================================
-
-You can now run the deployment script:
-  npm run deploy
-============================================================
-```
-
-**If Wallet Already Exists:**
-```
-⚠️  A wallet seed already exists in your .env file.
-Do you want to:
-  1. Keep existing wallet
-  2. Create new wallet (will overwrite)
-  3. Import different wallet (will overwrite)
-
-Enter choice (1-3): 1
-
-✓ Keeping existing wallet configuration.
-Your existing wallet public key is: 0x1234...abcd
-Your wallet balance is: 1000 tDUST
-```
-
-#### Options:
-- **Create new wallet**: Generates a new 64-character hex seed
-- **Import existing wallet**: Enter your existing 64-character hex seed
-- **Keep existing wallet**: View current wallet info without changes
-
-The script will:
-- ✅ Save your wallet seed to `.env` file automatically
-- ✅ Display your wallet address for receiving funds
-- ✅ Check your current balance
-- ✅ Optionally wait for incoming testnet tokens
-
-### 4. Fund your wallet
-- Visit https://midnight.network/test-faucet
-- Send test tokens to your wallet address
-- Or wait for funds during wallet setup (option provided)
-
-## Usage
-
-### Compile & Deploy
-
-```bash
-# Compile the contract
-npm run compile
-
-# Build TypeScript to JavaScript
-npm run build
-
-# Deploy the contract to Midnight Testnet
 npm run deploy
 ```
 
-**Note**: If you haven't created a wallet yet, the deploy script will prompt you to run `npm run create-wallet` first.
+### 6. Register as User
+```bash
+npm run register
+```
 
-### Interact with Contract
+### 7. Submit Run Proof
+```bash
+npm run submit:proof
+```
 
-The Aseryx contract provides a shielded data vault where you can store and retrieve encrypted data entries.
+## Detailed Usage
+
+### Wallet Management
+
+#### Creating a New Wallet
+```bash
+npm run create:wallet
+```
+
+**Features:**
+- Generates cryptographically secure 64-character hex seed
+- Saves seed to `.env` file (automatically gitignored)
+- Displays wallet address for funding
+- Shows current balance
+- Optional: Wait for incoming testnet tokens
+
+### Contract Deployment
 
 ```bash
-# Create a new entry
-npm run write
-
-# Retrieve an entry
-npm run read
+npm run deploy
 ```
 
-#### Creating an Entry (`npm run write`)
+**Requirements:**
+- Wallet with sufficient tDUST tokens
+- Running proof server (`npm run docker`)
 
-The script will prompt you for:
-- **Entry ID**: A unique number to identify your entry (e.g., 1, 2, 3...)
-- **Data**: The data you want to store (max 32 bytes, will be encrypted)
-- **Caller ID**: Your unique identifier (must match when retrieving)
+**What it does:**
+- Compiles the Aseryx contract
+- Deploys to Midnight testnet
+- Saves deployment info to `deployment.json` (contract address and deployment timestamp)
+- Generates prover/verifier keys for ZK circuits
 
-Example:
-```
-Enter entry ID (number): 1
-Enter data to encrypt (max 32 bytes): Hello Midnight!
-Enter your caller ID (number): 12345
+### User Registration
 
-Submitting transaction... (this may take 20–60 seconds)
-
-Success!
-Entry created with ID: 1
+```bash
+npm run register
 ```
 
-#### Retrieving an Entry (`npm run read`)
+**Purpose:** Register your wallet address as a verified Aseryx user.
 
-The script will prompt you for:
-- **Entry ID**: The ID of the entry you want to retrieve
-- **Caller ID**: Must match the caller ID used when creating the entry
+**What happens:**
+- Connects to deployed contract
+- Registers your public key
+- Enables you to submit run proofs
 
-Example:
-```
-Enter entry ID to retrieve: 1
-Enter your caller ID: 12345
+### Submitting Run Proofs
 
-Retrieving entry...
-
-Success!
-Entry ID: 1
-Data: Hello Midnight!
+```bash
+npm run submit:proof
 ```
 
-**Note**: You can only retrieve entries you own (matching caller ID).
+**Current Implementation:** Uses hardcoded test values (6km distance, 1000s duration)
 
-## Utility Modules
+**What it does:**
+- Creates zero-knowledge proof that distance ≥ 5km AND duration ≤ 20min
+- Submits proof to contract without revealing actual values
+- Saves proof data to `./proofs/` for sharing/auditing
+- Updates user's verified run count on-chain
 
-The project uses modular utilities that can be imported into any script:
+## Zero-Knowledge Proof System
 
-### `utils/config.ts`
-- Network configuration (testnet endpoints)
-- WebSocket setup
+### How It Works
 
-### `utils/wallet.ts`
-- `isValidSeed()` - Validate wallet seed format
-- `buildAndSyncWallet()` - Initialize and sync wallet
-- `createWalletProvider()` - Create wallet provider for transactions
+1. **Private Data:** Distance and duration remain in user's local environment
+2. **Witnesses:** Provide private values to ZK circuits during proof generation
+3. **Proof Generation:** Creates cryptographic proof that criteria are met
+4. **On-Chain Verification:** Contract verifies proof without seeing private data
+5. **Public Transparency:** Only proof validity and user address are recorded
 
-### `utils/contract.ts`
-- `loadDeploymentInfo()` - Load deployment.json
-- `loadContractModule()` - Load compiled Aseryx contract
-- `initializeProviders()` - Setup all providers
-- `connectToContract()` - Connect to deployed contract
-- `getEntryData()` - Query entry data from contract state
-- `getTotalEntries()` - Get total number of entries
+### ZK Circuits
 
-## Contract Overview
+#### `registerUser`
+- **Input:** User public key
+- **Output:** Registers user in `registeredUsers` mapping and initializes proof counter
 
-The Aseryx contract (`contracts/aseryx.compact`) provides a shielded data vault with the following features:
+#### `proveRunDistance`
+- **Inputs:** Distance (Uint<32>), Duration (Uint<32>)
+- **Logic:** `distance >= 5000 && duration <= 1200`
+- **Output:** Boolean proof result
 
-### Ledger State
-- `total_entries`: Counter for total entries created
-- `data_entries`: Map of entry ID to encrypted data (32 bytes)
-- `data_owners`: Map of entry ID to owner/caller ID
-- `nonce`: Transaction nonce counter
+#### `submitRunProof`
+- **Input:** User public key
+- **Private Data:** Distance and duration (fetched from witnesses)
+- **Logic:** Verifies user is registered + calls `proveRunDistance` with private data
+- **Effects:** Increments user's proof count and global total
 
-### Circuits (Functions)
+#### `getUserProofCount`
+- **Input:** User public key
+- **Output:** Returns the number of verified proofs submitted by the user
 
-#### `create_entry`
-Creates a new encrypted data entry in the vault.
+### Privacy Guarantees
 
-**Parameters:**
-- `entry_id` (Uint<32>): Unique identifier for the entry
-- `encrypted_data` (Bytes<32>): The encrypted data to store
-- `caller_id` (Uint<32>): The owner/caller identifier
+- ✅ **Distance hidden:** Exact meters never revealed
+- ✅ **Duration hidden:** Exact seconds never revealed
+- ✅ **Route hidden:** GPS data never submitted
+- ✅ **Time hidden:** When run occurred not recorded
+- ✅ **Public verification:** Anyone can verify proof validity
+- ✅ **Non-repudiation:** User cannot deny submitting proof
 
-**Returns:** None (updates ledger state)
+## Proof Verification
 
-**Behavior:**
-- Ensures entry ID doesn't already exist
-- Stores encrypted data and associates it with the caller ID
-- Increments total entries counter
+### Off-Chain Verification
+Verify proof cryptography without blockchain interaction:
 
-#### `get_entry`
-Retrieves an encrypted data entry from the vault.
+```bash
+npm run verifyProof:offchain proofs/proof_submitRunProof_*.json
+```
 
-**Parameters:**
-- `entry_id` (Uint<32>): The entry ID to retrieve
-- `caller_id` (Uint<32>): Must match the owner's caller ID
+**Checks:**
+- Zero-knowledge proof constraints satisfied
+- Circuit logic verified locally
+- Proof proves distance ≥5km AND duration ≤20min
 
-**Returns:** `[Bytes<32>]` - The encrypted data
+### On-Chain Verification
+Verify transaction was accepted by the network by querying the blockchain directly:
 
-**Behavior:**
-- Verifies entry exists
-- Verifies caller owns the entry
-- Returns the encrypted data
+```bash
+npm run verifyProof:onchain proofs/proof_submitRunProof_*.json
+```
 
-## Creating Custom Interactions
+**Checks:**
+- Fetches transaction directly from Midnight blockchain
+- Verifies transaction exists and was processed
+- Confirms contract call to `submitRunProof` was executed
+- Validates transaction is recorded in blockchain history
 
-Use the utilities to build custom scripts:
+### Fetch Transaction from Blockchain
+Fetch detailed transaction information directly from the Midnight testnet:
+
+```bash
+npm run fetch:tx <transaction-hash>
+```
+
+**Example:**
+```bash
+npm run fetch:tx 6033544c2ae431e474da64ad93cc243ef93250ca513add8a53023292fc1aa5c3
+```
+
+**Displays:**
+- Transaction hash and protocol version
+- Block information (height, hash)
+- Contract actions and entry points
+- Raw transaction data
+- Transaction identifiers
+
+**Note:** Use the `txHash` field from proof files, not the `txId` field.
+
+## Proof File Storage
+
+When submitting run proofs, transaction data including the zero-knowledge proof is automatically saved to the `./proofs/` directory. Each proof file contains:
+
+- **Circuit name** and **timestamp** of submission
+- **User metadata** (address, distance, duration for reference)
+- **Complete transaction data** including private and public transcripts
+- **Transaction hash** for blockchain verification
+- **Serialized proof data** for sharing and auditing
+
+**Example proof filename:** `proof_submitRunProof_2025-11-12T22-20-16-501Z.json`
+
+**Note:** Proof files contain sensitive cryptographic data and should be handled securely when sharing for verification purposes.
+
+## Querying User Proof Counts
+
+Query the number of verified proofs submitted by a specific user:
 
 ```typescript
-import { buildAndSyncWallet } from "../utils/wallet.js";
-import { loadDeploymentInfo, loadContractModule, initializeProviders, connectToContract } from "../utils/contract.js";
+import { AseryxModule } from './contracts/managed/aseryx/contract/index.cjs';
+import { createContract } from './utils/contract.js';
 
-async function myCustomScript() {
-  const deployment = loadDeploymentInfo();
-  const wallet = await buildAndSyncWallet(walletSeed);
-  const { AseryxModule, contractPath } = await loadContractModule();
-  const contractInstance = new AseryxModule.Contract({});
-  const providers = await initializeProviders(contractPath, wallet);
-  
-  const deployed = await connectToContract(
-    providers,
-    deployment.contractAddress,
-    contractInstance
-  );
-  
-  // Create an entry
-  const tx = await deployed.callTx.create_entry(
-    BigInt(1),                          // entry_id
-    new Uint8Array(32),                 // encrypted_data
-    BigInt(12345)                       // caller_id
-  );
-  
-  // Retrieve an entry
-  const result = await deployed.callTx.get_entry(
-    BigInt(1),                          // entry_id
-    BigInt(12345)                       // caller_id
-  );
-  const data = result.returns[0];       // Uint8Array
-  
-  await wallet.close();
-}
+// Create contract instance
+const contract = await createContract(deploymentAddress);
+
+// Query user's proof count
+const userProofCount = await contract.getUserProofCount(userPublicKey);
+console.log(`User has submitted ${userProofCount} verified proofs`);
 ```
+
+**Note:** This is a read-only operation that doesn't require gas or create transactions.
+
+## Scripts Reference
+
+| Command | Description |
+|---------|-------------|
+| `npm run docker` | Start proof server in Docker |
+| `npm run compile` | Compile contract to managed directory |
+| `npm run build` | Compile TypeScript to JavaScript |
+| `npm run deploy` | Deploy contract to testnet |
+| `npm run create:wallet` | Interactive wallet setup |
+| `npm run register` | Register user with contract |
+| `npm run submit:proof` | Submit run proof (currently hardcoded) |
+| `npm run fetch:tx` | Fetch transaction details from blockchain |
+| `npm run verifyProof:offchain` | Verify proof cryptography |
+| `npm run verifyProof:onchain` | Verify blockchain transaction |
+
+## Technical Architecture
+
+### Contract State
+- `registeredUsers`: Map of user addresses to registration status
+- `userProofs`: Map of user addresses to verified proof counts
+- `totalVerified`: Global counter of all verified runs
+
+### Transaction Flow
+1. User creates witnesses with private run data
+2. Contract generates ZK proof using witness data
+3. Proof submitted to network (only proof, not raw data)
+4. Network verifies proof cryptographically
+5. Success recorded on-chain, private data remains hidden
+
+### Dependencies
+- **@midnight-ntwrk/compact-runtime**: ZK proof generation
+- **@midnight-ntwrk/wallet**: Wallet management
+- **@midnight-ntwrk/midnight-js-***: Network providers
+- **bech32**: Address encoding
+- **ws**: WebSocket client
+
+### Local Blockchain State
+The `midnight-level-db/` directory contains a local LevelDB instance that caches blockchain state and transaction data. This provides:
+- Faster subsequent queries for contract state
+- Offline access to previously fetched data
+- Synchronization with the Midnight testnet
+- Persistent storage of wallet and contract interactions
+
+## Development & Customization
+
+### Modifying Run Criteria
+
+Edit `contracts/aseryx.compact`:
+
+```compact
+const DistanceThreshold = 5000 as Uint<32>;  // 5km in meters
+const DurationThreshold = 1200 as Uint<32>;  // 20 minutes in seconds
+```
+
+### Adding New Metrics
+
+1. Add witness functions in `utils/witnesses.ts`
+2. Update contract circuits
+3. Modify proof submission logic
+
+### Custom Proof Submission
+
+Instead of hardcoded values, integrate with fitness APIs:
+
+```typescript
+// Example: Fetch from Strava API
+const runData = await fetchStravaActivity(activityId);
+const distance = runData.distance;  // meters
+const duration = runData.moving_time;  // seconds
+
+const contractInstance = new AseryxModule.Contract(
+  createWitnesses(distance, duration)
+);
+```
+
+## Security & Privacy
+
+### Wallet Security
+- 🔐 Seeds stored in `.env` (gitignored)
+- 📝 Always backup seeds offline
+- ⚠️ Never commit seeds to version control
+- 🔄 Interactive prompts prevent accidental overwrites
+
+### Zero-Knowledge Privacy
+- **Cryptographic Proofs:** Mathematical guarantees of privacy
+- **Minimal Disclosure:** Only proof validity revealed
+- **Verifiable:** Anyone can verify without trusting the prover
+- **Tamper-Proof:** Proofs are cryptographically bound to data
+
+### Network Security
+- Built on Midnight Network's privacy-preserving blockchain
+- Zero-knowledge proofs prevent data leakage
+- Transaction finality through consensus
 
 ## Requirements
 
@@ -324,12 +386,65 @@ WALLET_SEED=your_64_character_hex_seed_here
 
 ## Troubleshooting
 
-**No wallet found**: Run `npm run create-wallet` first  
-**Contract not found**: Run `npm run compile`  
-**No deployment.json**: Run `npm run deploy` first  
-**Wallet balance 0**: Get tokens from the faucet or use the "wait for funds" option  
-**Build errors**: Run `npm install`  
-**Wallet already exists**: Choose option 1 to keep it, or 2/3 to overwrite
+### Common Issues
+
+**"No wallet found"**
+```bash
+npm run create:wallet
+```
+
+**"Contract not deployed"**
+```bash
+npm run deploy
+```
+
+**"Insufficient funds"**
+- Visit [Midnight Faucet](https://midnight.network/test-faucet)
+- Send tDUST to your wallet address
+- Wait for confirmation
+
+**"Proof server not running"**
+```bash
+npm run docker
+# Wait for "midnight-proof-server is ready" message
+```
+
+**"User not registered"**
+```bash
+npm run register
+```
+
+**"Run doesn't meet criteria"**
+- Ensure distance ≥ 5000 meters (5km)
+- Ensure duration ≤ 1200 seconds (20 minutes)
+
+### Proof Verification Issues
+
+**Off-chain verification fails:**
+- Check proof file integrity
+- Ensure ZKIR circuit files exist
+- Verify proof server is running
+
+**On-chain verification fails:**
+- Check network connectivity to Midnight testnet
+- Verify transaction hash in proof file is correct
+- Ensure indexer API is accessible
+- Confirm transaction was actually submitted to network
+
+## Contributing
+
+1. Test on Midnight testnet only
+2. Use meaningful commit messages
+3. Update documentation for API changes
+4. Test proof verification thoroughly
+
+## License
+
+[Add license information]
+
+---
+
+**Built with ❤️ on the Midnight Network**
 
 ## Security Notes
 
