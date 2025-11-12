@@ -1,8 +1,7 @@
 import * as readline from "readline/promises";
 import { buildAndSyncWallet, isValidSeed } from "../utils/wallet.js";
 import { loadDeploymentInfo, loadContractModule, initializeProviders, connectToContract } from "../utils/contract.js";
-import { AseryxPrivateState } from "../utils/witnesses.js";
-import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
+import { createDummyWitnesses } from "../utils/witnesses.js";
 import * as dotenv from "dotenv";
 import * as Rx from "rxjs";
 import { bech32m } from "bech32";
@@ -60,12 +59,7 @@ async function main() {
 
     // Load compiled contract
     const { AseryxModule, contractPath } = await loadContractModule();
-    const contractInstance = new AseryxModule.Contract({
-      runDistance: ({ privateState }: WitnessContext<typeof AseryxModule.ledger, AseryxPrivateState>): [AseryxPrivateState, bigint] => 
-        [privateState, 0n],
-      runDuration: ({ privateState }: WitnessContext<typeof AseryxModule.ledger, AseryxPrivateState>): [AseryxPrivateState, bigint] => 
-        [privateState, 0n]
-    });
+    const contractInstance = new AseryxModule.Contract(createDummyWitnesses());
 
     // Configure providers
     const providers = await initializeProviders(contractPath, wallet);

@@ -1,13 +1,12 @@
 import { buildAndSyncWallet, createWalletProvider } from "../utils/wallet.js";
 import { TESTNET_CONFIG } from "../utils/config.js";
-import { AseryxPrivateState } from "../utils/witnesses.js";
+import { createDummyWitnesses } from "../utils/witnesses.js";
 import { deployContract } from "@midnight-ntwrk/midnight-js-contracts";
 import { httpClientProofProvider } from "@midnight-ntwrk/midnight-js-http-client-proof-provider";
 import { indexerPublicDataProvider } from "@midnight-ntwrk/midnight-js-indexer-public-data-provider";
 import { NodeZkConfigProvider } from "@midnight-ntwrk/midnight-js-node-zk-config-provider";
 import { levelPrivateStateProvider } from "@midnight-ntwrk/midnight-js-level-private-state-provider";
 import { nativeToken } from "@midnight-ntwrk/ledger";
-import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
 import * as fs from "fs";
 import * as path from "path";
 import * as Rx from "rxjs";
@@ -71,12 +70,7 @@ async function main() {
     }
 
     const AseryxModule = await import(contractModulePath);
-    const contractInstance = new AseryxModule.Contract({
-      runDistance: ({ privateState }: WitnessContext<typeof AseryxModule.ledger, AseryxPrivateState>): [AseryxPrivateState, bigint] => 
-        [privateState, 0n],
-      runDuration: ({ privateState }: WitnessContext<typeof AseryxModule.ledger, AseryxPrivateState>): [AseryxPrivateState, bigint] => 
-        [privateState, 0n]
-    });
+    const contractInstance = new AseryxModule.Contract(createDummyWitnesses());
 
     // Create wallet provider using utility function
     console.log("Setting up wallet provider...");
