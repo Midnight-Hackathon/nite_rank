@@ -18,7 +18,7 @@ async function main() {
     // Check if wallet already exists
     dotenv.config();
     if (process.env.WALLET_SEED) {
-      console.log("\n⚠️  A wallet seed already exists in your .env file.");
+      console.log("\nA wallet seed already exists in your .env file.");
       console.log("Do you want to:");
       console.log("  1. Keep existing wallet");
       console.log("  2. Create new wallet (will overwrite)");
@@ -37,7 +37,7 @@ async function main() {
         return;
       }
       
-      console.log("\n⚠️  This will overwrite your existing wallet seed!");
+      console.log("\nThis will overwrite your existing wallet seed!");
       const confirm = await rl.question("Are you sure? (y/n): ");
       
       if (confirm.toLowerCase() !== "y") {
@@ -68,7 +68,7 @@ async function main() {
       console.log("\n✓ Valid wallet seed detected.");
     } else {
       // Create new wallet
-      console.log("\n🔐 Generating new wallet seed...");
+      console.log("\nGenerating new wallet seed...");
       const bytes = new Uint8Array(32);
       // @ts-ignore
       crypto.getRandomValues(bytes);
@@ -77,7 +77,7 @@ async function main() {
       ).join("");
 
       console.log("\n" + "=".repeat(60));
-      console.log("⚠️  IMPORTANT: SAVE THIS SEED SECURELY!");
+      console.log("IMPORTANT: SAVE THIS SEED SECURELY!");
       console.log("=".repeat(60));
       console.log(`\n${walletSeed}\n`);
       console.log("This seed will be saved to your .env file, but you should");
@@ -95,7 +95,7 @@ async function main() {
     saveWalletSeedToEnv(walletSeed);
 
     // Build and sync wallet
-    console.log("\n📡 Connecting to Midnight Testnet...");
+    console.log("\nConnecting to Midnight Testnet...");
     const wallet = await buildAndSyncWallet(walletSeed);
 
     const state = await Rx.firstValueFrom(wallet.state());
@@ -104,7 +104,7 @@ async function main() {
     const balance = state.balances[nativeToken()] || 0n;
 
     if (balance === 0n) {
-      console.log(`\n💰 Wallet balance: 0 tDUST`);
+      console.log(`\nWallet balance: 0 tDUST`);
       console.log("\n" + "=".repeat(60));
       console.log("NEXT STEPS:");
       console.log("=".repeat(60));
@@ -117,7 +117,7 @@ async function main() {
       const waitChoice = await rl.question("\nWait for funds now? (y/n): ");
       
       if (waitChoice.toLowerCase() === "y" || waitChoice.toLowerCase() === "yes") {
-        console.log("\n⏳ Waiting to receive tokens...");
+        console.log("\nWaiting to receive tokens...");
         console.log("(The wallet will continuously check for incoming funds)");
         await waitForFunds(wallet);
         // Note: success message already printed by waitForFunds
