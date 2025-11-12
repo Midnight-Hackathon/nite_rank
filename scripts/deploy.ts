@@ -1,11 +1,13 @@
 import { buildAndSyncWallet, createWalletProvider } from "../utils/wallet.js";
 import { TESTNET_CONFIG } from "../utils/config.js";
+import { AseryxPrivateState } from "../utils/witnesses.js";
 import { deployContract } from "@midnight-ntwrk/midnight-js-contracts";
 import { httpClientProofProvider } from "@midnight-ntwrk/midnight-js-http-client-proof-provider";
 import { indexerPublicDataProvider } from "@midnight-ntwrk/midnight-js-indexer-public-data-provider";
 import { NodeZkConfigProvider } from "@midnight-ntwrk/midnight-js-node-zk-config-provider";
 import { levelPrivateStateProvider } from "@midnight-ntwrk/midnight-js-level-private-state-provider";
 import { nativeToken } from "@midnight-ntwrk/ledger";
+import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
 import * as fs from "fs";
 import * as path from "path";
 import * as Rx from "rxjs";
@@ -31,7 +33,7 @@ async function main() {
     }
 
     // Build and sync wallet
-    console.log("📡 Connecting wallet to Midnight Testnet...");
+    console.log(" Connecting wallet to Midnight Testnet...");
     const wallet = await buildAndSyncWallet(walletSeed);
 
     const state = await Rx.firstValueFrom(wallet.state());
@@ -40,7 +42,7 @@ async function main() {
     const balance = state.balances[nativeToken()] || 0n;
 
     if (balance === 0n) {
-      console.error("\n✗ Insufficient funds!\n");
+      console.error("\n\x1b[31m✗ Insufficient funds!\x1b[0m\n");
       console.log("Your wallet has no tDUST tokens.");
       console.log("Please fund your wallet:");
       console.log("  1. Visit: https://midnight.network/test-faucet");
@@ -53,7 +55,7 @@ async function main() {
 
     console.log(`✓ Wallet balance: ${balance} tDUST`);
 
-    console.log("\n📦 Loading contract...");
+    console.log("\nLoading contract...");
     const contractPath = path.join(process.cwd(), "contracts");
     const contractModulePath = path.join(
       contractPath,
@@ -69,13 +71,18 @@ async function main() {
     }
 
     const AseryxModule = await import(contractModulePath);
-    const contractInstance = new AseryxModule.Contract({});
+    const contractInstance = new AseryxModule.Contract({
+      runDistance: ({ privateState }: WitnessContext<typeof AseryxModule.ledger, AseryxPrivateState>): [AseryxPrivateState, bigint] => 
+        [privateState, 0n],
+      runDuration: ({ privateState }: WitnessContext<typeof AseryxModule.ledger, AseryxPrivateState>): [AseryxPrivateState, bigint] => 
+        [privateState, 0n]
+    });
 
     // Create wallet provider using utility function
-    console.log("🔧 Setting up wallet provider...");
+    console.log("Setting up wallet provider...");
     const walletProvider = await createWalletProvider(wallet);
 
-    console.log("🔧 Setting up providers...");
+    console.log(" Setting up providers...");
     const zkConfigPath = path.join(contractPath, "managed", "aseryx");
     const providers = {
       privateStateProvider: levelPrivateStateProvider({
@@ -91,8 +98,8 @@ async function main() {
       midnightProvider: walletProvider
     };
 
-    console.log("\n🚀 Deploying contract...");
-    console.log("⏳ This may take 30-60 seconds...\n");
+    console.log("\nDeploying contract...");
+    console.log("This may take 30-60 seconds...\n");
 
     const deployed = await deployContract(providers, {
       contract: contractInstance,
@@ -105,7 +112,7 @@ async function main() {
     console.log("\n" + "=".repeat(60));
     console.log("✓ DEPLOYMENT SUCCESSFUL!");
     console.log("=".repeat(60));
-    console.log(`\n📝 Contract Address: ${contractAddress}\n`);
+    console.log(`\n Contract Address: ${contractAddress}\n`);
 
     const info = {
       contractAddress,
