@@ -1,5 +1,4 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import { checkProofData, ProofData, AlignedValue } from '@midnight-ntwrk/compact-runtime';
 import { deserializeWithBigInt } from '../utils/proofCapture.js';
 import process from 'node:process';

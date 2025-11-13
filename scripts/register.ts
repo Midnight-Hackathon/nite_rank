@@ -72,15 +72,8 @@ async function main() {
     );
 
     console.log("Connected to contract!\n");
-
-    // Optional: Confirm
-    const confirm = await rl.question("Register this user? (y/n): ");
-    if (confirm.toLowerCase() !== 'y') {
-      console.log("Registration cancelled.");
-      process.exit(0);
-    }
-
     console.log("Registering user...\n");
+    console.log(`User public key (hex): ${state.address}\n`);
 
     try {
       const tx = await deployed.callTx.registerUser(userPk);
