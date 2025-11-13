@@ -1,13 +1,7 @@
-# Aseryx - Zero-Knowledge Fitness Tracking on Midnight Network
+# Zero-Knowledge wearable Tracking on Midnight Network
 
-**Repository:** faulknerpearce/midnight  
-**Application:** Aseryx
+A privacy-preserving wearable tracking application built on the Midnight Network using zero-knowledge proofs. Users can prove they completed runs meeting specific criteria (distance ≥ 5km, duration ≤ 20 minutes) without revealing their actual distance or duration values.
 
-A privacy-preserving fitness tracking application built on the Midnight Network using zero-knowledge proofs. Users can prove they completed runs meeting specific criteria (distance ≥ 5km, duration ≤ 20 minutes) without revealing their actual distance or duration values.
-
-## What is Aseryx?
-
-Aseryx enables fitness enthusiasts to:
 - **Register** as verified users on the Midnight blockchain
 - **Submit zero-knowledge proofs** of completed runs that meet criteria
 - **Maintain privacy** - exact distance/duration remains hidden
@@ -126,7 +120,7 @@ npm run deploy
 - Running proof server (`npm run docker`)
 
 **What it does:**
-- Compiles the Aseryx contract
+- Compiles the compactcontract
 - Deploys to Midnight testnet
 - Saves deployment info to `deployment.json` (contract address and deployment timestamp)
 - Generates prover/verifier keys for ZK circuits
@@ -137,7 +131,7 @@ npm run deploy
 npm run register
 ```
 
-**Purpose:** Register your wallet address as a verified Aseryx user.
+**Purpose:** Register your wallet address as a verified user.
 
 **What happens:**
 - Connects to deployed contract
@@ -191,12 +185,12 @@ npm run submit:proof
 
 ### Privacy Guarantees
 
-- ✅ **Distance hidden:** Exact meters never revealed
-- ✅ **Duration hidden:** Exact seconds never revealed
-- ✅ **Route hidden:** GPS data never submitted
-- ✅ **Time hidden:** When run occurred not recorded
-- ✅ **Public verification:** Anyone can verify proof validity
-- ✅ **Non-repudiation:** User cannot deny submitting proof
+- **Distance hidden:** Exact meters never revealed
+- **Duration hidden:** Exact seconds never revealed
+- **Route hidden:** GPS data never submitted
+- **Time hidden:** When run occurred not recorded
+- **Public verification:** Anyone can verify proof validity
+- **Non-repudiation:** User cannot deny submitting proof
 
 ## Proof Verification
 
@@ -356,10 +350,10 @@ const contractInstance = new AseryxModule.Contract(
 ## Security & Privacy
 
 ### Wallet Security
-- 🔐 Seeds stored in `.env` (gitignored)
-- 📝 Always backup seeds offline
-- ⚠️ Never commit seeds to version control
-- 🔄 Interactive prompts prevent accidental overwrites
+- Seeds stored in `.env` (gitignored)
+- Always backup seeds offline
+- Never commit seeds to version control
+- Interactive prompts prevent accidental overwrites
 
 ### Zero-Knowledge Privacy
 - **Cryptographic Proofs:** Mathematical guarantees of privacy
@@ -384,8 +378,6 @@ The wallet configuration is stored in `.env` file (automatically created by `npm
 ```
 WALLET_SEED=your_64_character_hex_seed_here
 ```
-
-**⚠️ Important**: Never commit your `.env` file or share your wallet seed!
 
 ## Troubleshooting
 
@@ -440,18 +432,3 @@ npm run register
 2. Use meaningful commit messages
 3. Update documentation for API changes
 4. Test proof verification thoroughly
-
-## License
-
-[Add license information]
-
----
-
-**Built with ❤️ on the Midnight Network**
-
-## Security Notes
-
-- 🔐 Your wallet seed is stored in `.env` (gitignored by default)
-- 📝 Always backup your seed in a secure location
-- ⚠️ Never share your seed or commit it to version control
-- 🔄 The wallet setup script protects against accidental overwrites
