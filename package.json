@@ -6,6 +6,9 @@
     "docker": "docker run -p 6300:6300 midnightnetwork/proof-server -- 'midnight-proof-server --network testnet'",
     "compile": "compact compile contracts/aseryx.compact contracts/managed/aseryx",
     "build": "tsc",
+    "build:frontend": "vite build",
+    "server": "cd server && node server.js",
+    "dev": "vite",
     "clean": "rm -rf dist && rm -rf contracts/managed/",
     "rebuild": "npm run clean && npm run build",
     "deploy": "node --disable-warning=ExperimentalWarning --disable-warning=DEP0040 dist/scripts/deploy.js",
@@ -31,11 +34,22 @@
     "@midnight-ntwrk/zswap": "^4.0.0",
     "bech32": "^2.0.0",
     "dotenv": "^16.4.5",
+    "express": "^5.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
     "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/node": "^24.4.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
     "@types/ws": "^8.5.10",
-    "typescript": "^5.9.2"
+    "@vitejs/plugin-react": "^4.2.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
+    "typescript": "^5.9.2",
+    "vite": "^5.0.0"
   }
 }

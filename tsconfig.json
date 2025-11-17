@@ -1,15 +1,23 @@
 {
   "compilerOptions": {
     "target": "ES2022",
+    "lib": ["DOM", "DOM.Iterable", "ES6"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
     "module": "ESNext",
     "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
     "outDir": "./dist",
-    "rootDir": "./",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true
+    "rootDir": "./"
   },
-  "include": ["scripts/**/*", "utils/**/*", "zk/**/*"],
+  "include": ["src", "scripts/**/*", "utils/**/*", "zk/**/*"],
   "exclude": ["node_modules", "dist", "contracts"]
 }
