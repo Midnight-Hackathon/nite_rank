@@ -6,7 +6,9 @@ import { loadContractModule, initializeProviders, connectToContract } from '../d
 import deployment from '../deployment.json' with { type: 'json' };
 import { createWitnesses } from '../dist/utils/witnesses.js';   // <-- your existing witness helper
 import dotenv from 'dotenv';
-dotenv.config();
+import { bech32m } from 'bech32';
+import * as Rx from 'rxjs';
+dotenv.config({ path: '../.env' });
 
 const app = express();
 app.use(cors({ origin: 'http://localhost:3000' }));
@@ -16,9 +18,17 @@ app.post('/submit-proof', async (req, res) => {
   try {
     const { distance, duration } = req.body;
 
+    console.log(`Received request: distance=${distance}, duration=${duration}`);
+
     const wallet = await buildAndSyncWallet(process.env.WALLET_SEED);
 
-    // This is exactly what your CLI scripts do
+    const state = await Rx.firstValueFrom(wallet.state());
+    const decoded = bech32m.decode(state.coinPublicKey);
+    const userPk = new Uint8Array(bech32m.fromWords(decoded.words));
+
+    console.log(`UserPk length: ${userPk.length}, type: ${typeof userPk}`);
+
+    // Load contract module and create fresh instances
     const { AseryxModule, contractPath } = await loadContractModule();
     const witnesses = createWitnesses(distance, duration);
     const contractInstance = new AseryxModule.Contract(witnesses);
@@ -26,10 +36,15 @@ app.post('/submit-proof', async (req, res) => {
     const providers = await initializeProviders(contractPath, wallet);
     const deployed = await connectToContract(providers, deployment.contractAddress, contractInstance);
 
-    // This is the exact same call your working submitProof.ts uses
-    const tx = await deployed.callTx.submitRunProof();
+    console.log('About to call submitRunProof with userPk...');
+    
+    // Call submitRunProof with userPk
+    const tx = await deployed.callTx.submitRunProof(userPk);
 
     console.log('Proof submitted:', tx.public.txId);
+    
+    await wallet.close();
+    
     res.json({ success: true, txHash: tx.public.txId });
   } catch (err) {
     console.error(err);

@@ -1,4 +1,4 @@
-# Zero-Knowledge wearable Tracking on Midnight Network
+# NightRunner
 
 A privacy-preserving wearable tracking application built on the Midnight Network using zero-knowledge proofs. Users can prove they completed runs meeting specific criteria (distance ≥ 5km, duration ≤ 20 minutes) without revealing their actual distance or duration values.
 
@@ -13,7 +13,7 @@ The system uses zero-knowledge proofs to mathematically prove that a run meets t
 ## Project Structure
 
 ```
-midnight/
+nightrunner/
 ├── contracts/
 │   ├── aseryx.compact          # Main contract with ZK circuits
 │   └── managed/                # Compiled contract artifacts (generated)
@@ -38,7 +38,7 @@ midnight/
 │   ├── verifyProofOffChain.ts  # Cryptographic proof verification
 │   └── verifyProofOnChain.ts   # Blockchain transaction verification
 ├── proofs/                     # Saved proof files (generated)
-├── midnight-level-db/          # Local blockchain state (generated)
+├── nightrunner-level-db/          # Local blockchain state (generated)
 ├── dist/                       # Compiled TypeScript output (generated)
 ├── deployment.json             # Deployed contract info (generated)
 ├── .env                        # Wallet seed storage (generated, gitignored)
@@ -87,7 +87,7 @@ src/
 ```bash
 # Clone and install
 git clone <repository-url>
-cd midnight
+cd nightrunner
 npm install
 
 # Start proof server (in separate terminal)
@@ -338,7 +338,7 @@ console.log(`User has submitted ${userProofCount} verified proofs`);
 - **ws**: WebSocket client
 
 ### Local Blockchain State
-The `midnight-level-db/` directory contains a local LevelDB instance that caches blockchain state and transaction data. This provides:
+The `nightrunner-level-db/` directory contains a local LevelDB instance that caches blockchain state and transaction data. This provides:
 - Faster subsequent queries for contract state
 - Offline access to previously fetched data
 - Synchronization with the Midnight testnet
@@ -461,3 +461,28 @@ npm run register
 2. Use meaningful commit messages
 3. Update documentation for API changes
 4. Test proof verification thoroughly
+
+## License
+
+MIT License
+
+Copyright (c) 2025 NiteRank
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+

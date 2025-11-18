@@ -29,15 +29,10 @@ export function loadDeploymentInfo(): DeploymentInfo | null {
  * @returns The contract module and its path
  */
 export async function loadContractModule() {
-  // Go up one level from server/ to root, then down to contracts
-  const contractPath = path.join(process.cwd(), "..", "contracts");
-  const contractModulePath = path.join(
-    contractPath,
-    "managed",
-    "aseryx",
-    "contract",
-    "index.cjs"
-  );
+  // Direct path to the compiled contract module, relative to project root
+  const isInServer = process.cwd().endsWith('server');
+  const contractModulePath = path.join(process.cwd(), isInServer ? ".." : "", "contracts", "managed", "aseryx", "contract", "index.cjs");
+  const contractPath = path.join(process.cwd(), isInServer ? ".." : "", "contracts");
 
   if (!fs.existsSync(contractModulePath)) {
     throw new Error("Contract not compiled! Run: npm run compile");
@@ -46,7 +41,7 @@ export async function loadContractModule() {
   const AseryxModule = await import(contractModulePath);
   return { AseryxModule, contractPath };
 }
-  
+
 /**
  * Initializes contract providers
  * @param contractPath - Path to the contract directory
