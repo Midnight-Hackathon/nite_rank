@@ -3,6 +3,7 @@ import Home from './pages/Home.jsx';
 import Leaderboard from './pages/Leaderboard.jsx';
 import Test from './pages/Test.jsx';
 import Navbar from './components/Navbar.jsx';
+import Dashboard from './pages/Dashboard.jsx';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/test" element={<Test />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </main>
       </div>

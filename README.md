@@ -47,6 +47,35 @@ midnight/
 └── README.md
 ```
 
+## Frontend Structure
+
+```
+src/
+├── App.jsx
+├── index.css
+├── main.jsx
+├── components/
+│   ├── DualLeaderboards.jsx
+│   ├── FinalCTA.jsx
+│   ├── GameSection.jsx
+│   ├── HeroVideo.jsx
+│   ├── HowItWorks.jsx
+│   ├── HybridPlay.jsx
+│   ├── Navbar.jsx
+│   ├── PrivacyComparison.jsx
+│   └── TrailerModal.jsx
+├── context/
+│   ├── ActivityContext.jsx
+│   └── StravaContext.jsx
+├── pages/
+│   ├── Dashboard.jsx
+│   ├── Home.jsx
+│   ├── Leaderboard.jsx
+│   └── Test.jsx
+└── pictures/
+    └── midnight.jpg
+```
+
 ## Quick Start
 
 ### 1. Prerequisites

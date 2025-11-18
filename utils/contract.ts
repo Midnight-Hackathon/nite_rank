@@ -29,7 +29,8 @@ export function loadDeploymentInfo(): DeploymentInfo | null {
  * @returns The contract module and its path
  */
 export async function loadContractModule() {
-  const contractPath = path.join(process.cwd(), "contracts");
+  // Go up one level from server/ to root, then down to contracts
+  const contractPath = path.join(process.cwd(), "..", "contracts");
   const contractModulePath = path.join(
     contractPath,
     "managed",
@@ -45,7 +46,7 @@ export async function loadContractModule() {
   const AseryxModule = await import(contractModulePath);
   return { AseryxModule, contractPath };
 }
-
+  
 /**
  * Initializes contract providers
  * @param contractPath - Path to the contract directory

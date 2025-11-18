@@ -20,5 +20,5 @@ export async function fetchActivities(accessToken) {
       duration: activity.moving_time,
     }));
 
-  return runData[0];
+  return runData;
 }

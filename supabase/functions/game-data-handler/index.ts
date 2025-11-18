@@ -1,4 +1,8 @@
 // Follow this setup guide to integrate the Deno language server with your editor:
+// https://deno.land/manual/getting_started/setup_your_environment
+// This enables autocomplete, go to definition, etc.
+
+import { createClient } from 'jsr:@supabase/supabase-js@2';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -10,22 +14,46 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = await req.json();  // Parse the incoming JSON data
-    console.log('Game data received:', body);  // Log to Supabase dashboard
+    const body = await req.json();
+    console.log('Game data received:', body);
 
-    // Optional: Store in Supabase DB (uncomment and set up a 'game_logs' table)
-    // const { createClient } = await import('npm:supabase-js@2');
-    // const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!);
-    // const { error } = await supabase.from('game_logs').insert({ data: body });
-    // if (error) console.error('DB insert error:', error);
+    // Use the built-in Supabase client with service role key
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    );
+    
+    console.log('Attempting to insert into game_logs...');
+    const { data, error } = await supabase
+      .from('game_logs')
+      .insert({ data: body })
+      .select();
+    
+    if (error) {
+      console.error('DB insert error:', error);
+      return new Response(JSON.stringify({ status: 'error', message: error.message, details: error }), { 
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        status: 500 
+      });
+    }
 
-    // Return a response to the sender
+    console.log('Insert successful:', data);
+
     return new Response(JSON.stringify({ status: 'received', echo: body }), {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
       status: 200,
     });
   } catch (error) {
     console.error('Error processing request:', error);
-    return new Response('Internal Server Error', { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), { 
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      status: 500 
+    });
   }
 });

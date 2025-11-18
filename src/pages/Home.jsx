@@ -1,16 +1,37 @@
 import React from 'react';
+import HeroVideo from '../components/HeroVideo.jsx';
+import GameSection from '../components/GameSection.jsx';
+import HybridPlay from '../components/HybridPlay.jsx';
+import DualLeaderboards from '../components/DualLeaderboards.jsx';
+import PrivacyComparison from '../components/PrivacyComparison.jsx';
+import HowItWorks from '../components/HowItWorks.jsx';
+import FinalCTA from '../components/FinalCTA.jsx';
 
 const Home = () => {
   return (
-    <div className="text-center">
-      <h2 className="text-3xl font-bold text-gray-800 mb-4">Welcome to Midnight Hackathon</h2>
-      <p className="text-gray-600 mb-8">Join the exciting world of blockchain and zero-knowledge proofs!</p>
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-xl font-semibold mb-4">About the Hackathon</h3>
-        <p className="text-gray-700">
-          This is a platform for developers to showcase their skills in building decentralized applications
-          on the Midnight network. Submit your run proofs and climb the leaderboard!
-        </p>
+    <div className="space-y-12">
+      {/* Full-width hero */}
+      <HeroVideo />
+
+      {/* Page content container */}
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 space-y-12">
+        {/* The Game */}
+        <GameSection />
+
+        {/* Hybrid loop section */}
+        <HybridPlay />
+
+        {/* Two Leaderboards */}
+        <DualLeaderboards />
+
+        {/* Comparison */}
+        <PrivacyComparison />
+
+        {/* How It Works */}
+        <HowItWorks />
+
+        {/* Final CTA */}
+        <FinalCTA />
       </div>
     </div>
   );
