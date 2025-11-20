@@ -1,4 +1,4 @@
-import { Ledger } from "../contracts/managed/aseryx/contract/index.cjs";
+import { Ledger } from "../../contracts/managed/aseryx/contract/index.cjs";
 import { WitnessContext } from "@midnight-ntwrk/compact-runtime";
 
 // Private state type (empty for now since you don't use it)

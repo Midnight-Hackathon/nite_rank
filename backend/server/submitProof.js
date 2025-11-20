@@ -1,14 +1,14 @@
 // server/submitProof.js   ←  NO InMemorySigner, NO CompactRuntime gymnastics
 import express from 'express';
 import cors from 'cors';
-import { buildAndSyncWallet } from '../dist/utils/wallet.js';
-import { loadContractModule, initializeProviders, connectToContract } from '../dist/utils/contract.js';
-import deployment from '../deployment.json' with { type: 'json' };
-import { createWitnesses } from '../dist/utils/witnesses.js';   // <-- your existing witness helper
+import { buildAndSyncWallet } from '../../dist/backend/utils/wallet.js';
+import { loadContractModule, initializeProviders, connectToContract } from '../../dist/backend/utils/contract.js';
+import deployment from '../../deployment.json' with { type: 'json' };
+import { createWitnesses } from '../../dist/backend/utils/witnesses.js';
 import dotenv from 'dotenv';
 import { bech32m } from 'bech32';
 import * as Rx from 'rxjs';
-dotenv.config({ path: '../.env' });
+dotenv.config({ path: '../../.env' });
 
 const app = express();
 app.use(cors({ origin: 'http://localhost:3000' }));

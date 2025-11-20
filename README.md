@@ -14,66 +14,96 @@ The system uses zero-knowledge proofs to mathematically prove that a run meets t
 
 ```
 nightrunner/
-├── contracts/
-│   ├── aseryx.compact          # Main contract with ZK circuits
-│   └── managed/                # Compiled contract artifacts (generated)
+├── backend/                    # Backend & blockchain infrastructure
+│   ├── scripts/               # Interactive CLI scripts
+│   │   ├── createWallet.ts    # Wallet setup & funding
+│   │   ├── deploy.ts          # Contract deployment
+│   │   ├── register.ts        # User registration
+│   │   └── submitProof.ts     # Run proof submission
+│   ├── server/                # Express API server
+│   │   └── submitProof.js     # Proof submission endpoint
+│   ├── utils/                 # Core backend utilities
+│   │   ├── config.ts          # Network configuration
+│   │   ├── wallet.ts          # Wallet management
+│   │   ├── contract.ts        # Contract interaction
+│   │   ├── witnesses.ts       # ZK witness functions
+│   │   ├── proofCapture.ts    # Proof serialization/sharing
+│   │   └── fetchTransaction.ts # Blockchain transaction fetching
+│   └── zk/                    # Proof verification tools
+│       ├── verifyProofOffChain.ts  # Cryptographic proof verification
+│       └── verifyProofOnChain.ts   # Blockchain transaction verification
+├── contracts/                 # Smart contracts
+│   ├── aseryx.compact         # Main contract with ZK circuits
+│   └── managed/               # Compiled contract artifacts (generated)
 │       └── aseryx/
-│           ├── compiler/       # Contract compilation info
-│           ├── contract/       # Compiled contract module
-│           ├── keys/           # Prover/verifier keys (generated)
-│           └── zkir/           # ZK circuit descriptions (generated)
-├── scripts/                    # Interactive CLI scripts
-│   ├── createWallet.ts         # Wallet setup & funding
-│   ├── deploy.ts               # Contract deployment
-│   ├── register.ts             # User registration
-│   └── submitProof.ts          # Run proof submission
-├── utils/                      # Core utilities
-│   ├── config.ts               # Network configuration
-│   ├── wallet.ts               # Wallet management
-│   ├── contract.ts             # Contract interaction
-│   ├── witnesses.ts            # ZK witness functions
-│   ├── proofCapture.ts         # Proof serialization/sharing
-│   └── fetchTransaction.ts     # Blockchain transaction fetching
-├── zk/                         # Proof verification tools
-│   ├── verifyProofOffChain.ts  # Cryptographic proof verification
-│   └── verifyProofOnChain.ts   # Blockchain transaction verification
-├── proofs/                     # Saved proof files (generated)
-├── nightrunner-level-db/          # Local blockchain state (generated)
-├── dist/                       # Compiled TypeScript output (generated)
-├── deployment.json             # Deployed contract info (generated)
-├── .env                        # Wallet seed storage (generated, gitignored)
-├── tsconfig.json               # TypeScript configuration
-├── package.json                # Dependencies and scripts
+│           ├── compiler/      # Contract compilation info
+│           ├── contract/      # Compiled contract module
+│           ├── keys/          # Prover/verifier keys (generated)
+│           └── zkir/          # ZK circuit descriptions (generated)
+├── frontend/                  # React frontend application
+│   ├── src/
+│   │   ├── components/        # React components
+│   │   ├── context/           # Context providers
+│   │   ├── pages/             # Page components
+│   │   ├── utils/             # Frontend utilities
+│   │   ├── assets/            # Images and static assets
+│   │   ├── App.jsx            # Main app component
+│   │   ├── main.jsx           # Entry point
+│   │   └── index.css          # Global styles
+│   ├── index.html             # HTML template
+│   ├── vite.config.ts         # Vite configuration
+│   ├── tailwind.config.js     # Tailwind CSS configuration
+│   └── postcss.config.js      # PostCSS configuration
+├── supabase/                  # Supabase backend functions
+│   ├── functions/
+│   │   ├── game-data-handler/ # Game data processing
+│   │   └── submit-proof/      # Proof submission handler
+│   └── config.toml            # Supabase configuration
+├── proofs/                    # Saved proof files (generated)
+├── midnight-level-db/         # Local blockchain state (generated)
+├── dist/                      # Compiled TypeScript output (generated)
+├── deployment.json            # Deployed contract info (generated)
+├── .env                       # Wallet seed storage (generated, gitignored)
+├── tsconfig.json              # TypeScript configuration
+├── package.json               # Dependencies and scripts
 └── README.md
 ```
 
 ## Frontend Structure
 
 ```
-src/
-├── App.jsx
-├── index.css
-├── main.jsx
-├── components/
-│   ├── DualLeaderboards.jsx
-│   ├── FinalCTA.jsx
-│   ├── GameSection.jsx
-│   ├── HeroVideo.jsx
-│   ├── HowItWorks.jsx
-│   ├── HybridPlay.jsx
-│   ├── Navbar.jsx
-│   ├── PrivacyComparison.jsx
-│   └── TrailerModal.jsx
-├── context/
-│   ├── ActivityContext.jsx
-│   └── StravaContext.jsx
-├── pages/
-│   ├── Dashboard.jsx
-│   ├── Home.jsx
-│   ├── Leaderboard.jsx
-│   └── Test.jsx
-└── pictures/
-    └── midnight.jpg
+frontend/
+├── src/
+│   ├── App.jsx                # Main application component
+│   ├── main.jsx               # Application entry point
+│   ├── index.css              # Global styles
+│   ├── components/            # Reusable UI components
+│   │   ├── DualLeaderboards.jsx
+│   │   ├── FinalCTA.jsx
+│   │   ├── GameSection.jsx
+│   │   ├── HeroVideo.jsx
+│   │   ├── HowItWorks.jsx
+│   │   ├── HybridPlay.jsx
+│   │   ├── Navbar.jsx
+│   │   ├── PrivacyComparison.jsx
+│   │   └── TrailerModal.jsx
+│   ├── context/               # React context providers
+│   │   ├── ActivityContext.jsx
+│   │   └── StravaContext.jsx
+│   ├── pages/                 # Page components
+│   │   ├── Dashboard.jsx
+│   │   ├── Home.jsx
+│   │   ├── Leaderboard.jsx
+│   │   └── Test.jsx
+│   ├── utils/                 # Frontend utilities
+│   │   ├── createWitnesses.js # ZK witness creation
+│   │   └── midnightClient.js  # Midnight blockchain client
+│   └── assets/                # Static assets
+│       └── midnight.jpg
+├── index.html                 # HTML template
+├── vite.config.ts             # Vite build configuration
+├── tailwind.config.js         # Tailwind CSS configuration
+└── postcss.config.js          # PostCSS configuration
 ```
 
 ## Quick Start
@@ -289,7 +319,7 @@ Query the number of verified proofs submitted by a specific user:
 
 ```typescript
 import { AseryxModule } from './contracts/managed/aseryx/contract/index.cjs';
-import { createContract } from './utils/contract.js';
+import { createContract } from './backend/utils/contract.js';
 
 // Create contract instance
 const contract = await createContract(deploymentAddress);
@@ -357,7 +387,7 @@ const DurationThreshold = 1200 as Uint<32>;  // 20 minutes in seconds
 
 ### Adding New Metrics
 
-1. Add witness functions in `utils/witnesses.ts`
+1. Add witness functions in `backend/utils/witnesses.ts`
 2. Update contract circuits
 3. Modify proof submission logic
 

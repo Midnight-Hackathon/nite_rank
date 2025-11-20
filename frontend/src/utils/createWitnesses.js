@@ -1,5 +1,5 @@
 //utils/createWitnesses.js
-import { AseryxModule } from '../../contracts/managed/aseryx/contract/index.cjs';
+import { AseryxModule } from '../../../contracts/managed/aseryx/contract/index.cjs';
 
 
 export const createWitnesses = (distanceMeters, durationSeconds) => {

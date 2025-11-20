@@ -18,6 +18,6 @@
     "outDir": "./dist",
     "rootDir": "./"
   },
-  "include": ["src", "scripts/**/*", "utils/**/*", "zk/**/*"],
-  "exclude": ["node_modules", "dist", "contracts"]
+  "include": ["backend/**/*"],
+  "exclude": ["node_modules", "dist", "contracts", "frontend"]
 }
