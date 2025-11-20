@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useStrava } from '../context/StravaContext.jsx';
 import TrailerModal from './TrailerModal.jsx';
-import heroPoster from '../pictures/midnight.jpg';
+import heroPoster from '../assets/midnight.jpg';
 
 const HeroVideo = () => {
   const { isConnected, connectStrava } = useStrava();

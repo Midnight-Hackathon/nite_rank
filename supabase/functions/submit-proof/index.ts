@@ -1,9 +1,9 @@
-import { buildAndSyncWallet, isValidSeed } from '../../../utils/wallet.ts';
-import { loadDeploymentInfo, loadContractModule, initializeProviders, connectToContract } from '../../../utils/contract.js';
-import { saveTransactionProof } from '../../../utils/proofCapture.ts';
+import { buildAndSyncWallet, isValidSeed } from '../../../backend/utils/wallet.ts';
+import { loadDeploymentInfo, loadContractModule, initializeProviders, connectToContract } from '../../../backend/utils/contract.js';
+import { saveTransactionProof } from '../../../backend/utils/proofCapture.ts';
 import * as Rx from 'npm:rxjs';
 import { bech32m } from 'npm:bech32';
-import { createWitnesses } from '../../../utils/witnesses.ts';
+import { createWitnesses } from '../../../backend/utils/witnesses.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {

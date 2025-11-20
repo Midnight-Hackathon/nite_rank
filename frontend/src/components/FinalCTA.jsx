@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStrava } from '../context/StravaContext.jsx';
-import heroPoster from '../pictures/midnight.jpg';
+import heroPoster from '../assets/midnight.jpg';
 
 const FinalCTA = () => {
   const { connectStrava } = useStrava();
