@@ -1,4 +1,4 @@
-# NightRunner
+# NiteRank
 
 A privacy-preserving wearable tracking application built on the Midnight Network using zero-knowledge proofs. Users can prove they completed runs meeting specific criteria (distance ≥ 5km, duration ≤ 20 minutes) without revealing their actual distance or duration values.
 
